@@ -195,6 +195,8 @@ class analytics_high_doc_ops(CBASBaseTest):
         tries = 10
         while tries>0:
             try:
+                items_GleambookUsers = RestConnection(self.query_node).query_tool('select count(*) from GleambookUsers')['results'][0]['$1']
+                self.log.info("Items in CB GleanBookUsers bucket: %s"%items_GleambookUsers)
                 result = self.cbas_util.validate_cbas_dataset_items_count("GleambookUsers_ds",items_GleambookUsers, num_tries=100)
                 break
             except:
@@ -316,8 +318,16 @@ class analytics_high_doc_ops(CBASBaseTest):
         items_start_from += total_num_items
         ########################################################################################################################
         self.log.info("Step 4: Create 8 analytics buckets and 8 datasets and connect.")
+        load_thread = Thread(target=self.load_buckets_with_high_ops,
+                                 name="high_ops_load",
+                                 args=(self.master, GleambookUsers, total_num_items,50,5, items_start_from,2, 0))
+        self.log.info('starting the load thread...')
+        load_thread.start()
+        
+        items_start_from += total_num_items
         self.setup_cbas()
-         
+        load_thread.join()
+                 
         ########################################################################################################################
         self.log.info("Step 5: Wait for ingestion to complete.")
         self.sleep(10,"Wait for the ingestion to complete")
