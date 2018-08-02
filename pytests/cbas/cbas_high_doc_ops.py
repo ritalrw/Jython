@@ -172,7 +172,7 @@ class analytics_high_doc_ops(CBASBaseTest):
     def create_cbas_indexes(self):
         #create Indexes
         status, metrics, errors, results, _ = self.cbas_util.execute_statement_on_cbas_util(
-            "CREATE INDEX usrSinceIdx ON `GleambookUsers_ds`(user_since: string);",timeout=300,analytics_timeout=300)
+            "CREATE INDEX usrSinceIdx ON `GleambookUsers_ds`(user_since: string);",timeout=3600,analytics_timeout=3600)
         self.assertTrue(status == "success", "Create Index query failed")
 #         status, metrics, errors, results, _ = self.cbas_util.execute_statement_on_cbas_util(
 #             "CREATE INDEX authorIdIdx ON `GleambookMessages_ds`(author_id: string);",timeout=300,analytics_timeout=300)

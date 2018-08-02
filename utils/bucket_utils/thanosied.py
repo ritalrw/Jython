@@ -101,18 +101,17 @@ class Document:
         start_date = "%04d"%random.choice(year) + "-" + "%02d"%random.choice(month) + "-" + "%02d"%random.choice(day)
         end_date = "%04d"%random.choice(year) + "-" + "%02d"%random.choice(month) + "-" + "%02d"%random.choice(day)
         
-        for i in xrange(3):
-            EmploymentType = {"organization":random.choice(organization),"start_date":start_date,"end_date":end_date}
-            employment.append(EmploymentType)
- 
-            EmploymentType = {"organization":random.choice(organization),"start_date":start_date}
-            employment.append(EmploymentType)
+        EmploymentType = {"organization":random.choice(organization),"start_date":start_date,"end_date":end_date}
+        employment.append(EmploymentType)
+        
+        EmploymentType = {"organization":random.choice(organization),"start_date":start_date}
+        employment.append(EmploymentType)
 
         self.id = num
-        self.alias ="Peter"+"%05d"%num
-        self.name = "Peter Thomas"
+#         self.alias ="Peter"+"%05d"%num
+#         self.name = "Peter Thomas"
         self.user_since=date+"T"+time
-        self.employment=random.sample(employment,random.choice(range(6)))
+        self.employment=random.sample(employment,random.choice(range(2)))
 
         
 class Batch:

@@ -667,10 +667,10 @@ class CBASTuqSanity(QuerySanityTests):
         for bucket in self.buckets:
             self.query = 'SELECT ARRAY_STAR(ARRAY_FLATTEN((select value VMs from %s  where %s.VMs is not missing limit 1),1)) as test'%(bucket.name,bucket.name)
             actual_result = self.run_cbq_query()
-            self.assertTrue(len(actual_result['results'][0]["test"]["RAM"] == 2))
-            self.assertTrue(len(actual_result['results'][0]["test"]["memory"] == 2))
-            self.assertTrue(len(actual_result['results'][0]["test"]["name"] == 2))
-            self.assertTrue(len(actual_result['results'][0]["test"]["os"] == 2))
+            self.assertTrue(len(actual_result['results'][0]["test"]["RAM"]) == 2)
+            self.assertTrue(len(actual_result['results'][0]["test"]["memory"]) == 2)
+            self.assertTrue(len(actual_result['results'][0]["test"]["name"]) == 2)
+            self.assertTrue(len(actual_result['results'][0]["test"]["os"]) == 2)
 
     def test_array_sort(self):
         for bucket in self.buckets:
