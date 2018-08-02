@@ -88,7 +88,30 @@ class Document:
         self.val = int(value)
         self.update = 0
         self.body = body
+        
+        import random
+        num = self.val
+        organization = ["Wipro","Infosys","TCS","Tech Mahindra","CTS","Microsoft"]
+        date = "%04d"%random.choice(self.year) + "-" + "%02d"%random.choice(self.month) + "-" + "%02d"%random.choice(self.day)
+        time = "%02d"%random.choice(self.hr) + "-" + "%02d"%random.choice(self.min) + "-" + "%02d"%random.choice(self.sec)
+        employment = []
+        start_date = "%04d"%random.choice(self.year) + "-" + "%02d"%random.choice(self.month) + "-" + "%02d"%random.choice(self.day)
+        end_date = "%04d"%random.choice(self.year) + "-" + "%02d"%random.choice(self.month) + "-" + "%02d"%random.choice(self.day)
+        
+        for i in xrange(3):
+            EmploymentType = {"organization":random.choice(organization),"start_date":start_date,"end_date":end_date}
+            employment.append(EmploymentType)
+ 
+            EmploymentType = {"organization":random.choice(organization),"start_date":start_date}
+            employment.append(EmploymentType)
 
+        self.id = num
+        self.alias ="Peter"+"%05d"%num
+        self.name = "Peter Thomas"
+        self.user_since=date+"T"+time
+        self.employment=random.sample(employment,random.choice(range(6)))
+
+        
 class Batch:
     def __init__(self):
         self.start = 0

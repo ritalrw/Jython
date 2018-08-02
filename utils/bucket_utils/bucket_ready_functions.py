@@ -1536,3 +1536,4 @@ class bucket_utils():
         error = result.stderr.read()
         errors = []
         return errors
+
