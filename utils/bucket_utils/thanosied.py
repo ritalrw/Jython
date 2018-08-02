@@ -83,20 +83,23 @@ def parseArguments():
 
 class Document:
     def __init__(self, value, size):
-        body_length = size - str(value).__len__() - "val".__len__() - "update".__len__() - "body".__len__()
-        body = "".rjust(body_length, 'a')
+        year = range(2001,2018)
+        month = range(1,12)
+        day = range(1,28)
+        hr = range(0,24)
+        min = range(0,60)
+        sec = range(0,60)
         self.val = int(value)
         self.update = 0
-        self.body = body
         
         import random
         num = self.val
         organization = ["Wipro","Infosys","TCS","Tech Mahindra","CTS","Microsoft"]
-        date = "%04d"%random.choice(self.year) + "-" + "%02d"%random.choice(self.month) + "-" + "%02d"%random.choice(self.day)
-        time = "%02d"%random.choice(self.hr) + "-" + "%02d"%random.choice(self.min) + "-" + "%02d"%random.choice(self.sec)
+        date = "%04d"%random.choice(year) + "-" + "%02d"%random.choice(month) + "-" + "%02d"%random.choice(day)
+        time = "%02d"%random.choice(hr) + "-" + "%02d"%random.choice(min) + "-" + "%02d"%random.choice(sec)
         employment = []
-        start_date = "%04d"%random.choice(self.year) + "-" + "%02d"%random.choice(self.month) + "-" + "%02d"%random.choice(self.day)
-        end_date = "%04d"%random.choice(self.year) + "-" + "%02d"%random.choice(self.month) + "-" + "%02d"%random.choice(self.day)
+        start_date = "%04d"%random.choice(year) + "-" + "%02d"%random.choice(month) + "-" + "%02d"%random.choice(day)
+        end_date = "%04d"%random.choice(year) + "-" + "%02d"%random.choice(month) + "-" + "%02d"%random.choice(day)
         
         for i in xrange(3):
             EmploymentType = {"organization":random.choice(organization),"start_date":start_date,"end_date":end_date}
