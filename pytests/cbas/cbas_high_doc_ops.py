@@ -192,7 +192,7 @@ class analytics_high_doc_ops(CBASBaseTest):
         
         self.sleep(60)
         result = False
-        tries = 10
+        tries = 100
         while tries>0:
             try:
                 items_GleambookUsers = RestConnection(self.query_node).query_tool('select count(*) from GleambookUsers')['results'][0]['$1']
@@ -202,6 +202,8 @@ class analytics_high_doc_ops(CBASBaseTest):
             except:
                 pass
             tries -= 1
+            self.sleep(60, "CBAS count query is throwing exceptions. Wait for 60s and try again.")
+            
         self.assertTrue(result,"No. of items in GleambookUsers dataset do not match that in the CB bucket")
         
 #         result = False

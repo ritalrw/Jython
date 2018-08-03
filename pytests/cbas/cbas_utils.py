@@ -521,7 +521,7 @@ class cbas_utils():
             while count != expected_count and tries > 0:
                 time.sleep(10)
                 count, mutated_count = self.get_num_items_in_cbas_dataset(
-                    dataset_name)
+                    dataset_name,timeout=timeout,analytics_timeout=analytics_timeout)
                 tries -= 1
 
         self.log.info("Expected Count: %s, Actual Count: %s" % (expected_count, count))
