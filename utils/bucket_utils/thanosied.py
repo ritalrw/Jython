@@ -81,45 +81,48 @@ def parseArguments():
                                                                                    "at max capacity")
     return parser.parse_args()
 
-# class Document:
-#     def __init__(self, value, size):
-#         year = range(2001,2018)
-#         month = range(1,12)
-#         day = range(1,28)
-#         hr = range(0,24)
-#         min = range(0,60)
-#         sec = range(0,60)
-#         self.val = int(value)
-#         self.update = 0
-#         
-#         import random
-#         num = self.val
-#         organization = ["Wipro","Infosys","TCS","Tech Mahindra","CTS","Microsoft"]
-#         date = "%04d"%random.choice(year) + "-" + "%02d"%random.choice(month) + "-" + "%02d"%random.choice(day)
-#         time = "%02d"%random.choice(hr) + "-" + "%02d"%random.choice(min) + "-" + "%02d"%random.choice(sec)
-#         employment = []
-#         start_date = "%04d"%random.choice(year) + "-" + "%02d"%random.choice(month) + "-" + "%02d"%random.choice(day)
-#         end_date = "%04d"%random.choice(year) + "-" + "%02d"%random.choice(month) + "-" + "%02d"%random.choice(day)
-#         
-#         EmploymentType = {"organization":random.choice(organization),"start_date":start_date,"end_date":end_date}
-#         employment.append(EmploymentType)
-#         
-#         EmploymentType = {"organization":random.choice(organization),"start_date":start_date}
-#         employment.append(EmploymentType)
-# 
-#         self.id = num
-# #         self.alias ="Peter"+"%05d"%num
-# #         self.name = "Peter Thomas"
-#         self.user_since=date+"T"+time
-#         self.employment=random.sample(employment,random.choice(range(2)))
-
 class Document:
     def __init__(self, value, size):
-        body_length = size - str(value).__len__() - "val".__len__() - "update".__len__() - "body".__len__()
-        body = "".rjust(body_length, 'a')
+        year = range(2001,2018)
+        month = range(1,12)
+        day = range(1,28)
+        hr = range(0,24)
+        min = range(0,60)
+        sec = range(0,60)
         self.val = int(value)
         self.update = 0
-        self.body = body
+         
+        import random
+        num = self.val
+        organization = ["Wipro","Infosys","TCS","Tech Mahindra","CTS","Microsoft"]
+        date = "%04d"%random.choice(year) + "-" + "%02d"%random.choice(month) + "-" + "%02d"%random.choice(day)
+        time = "%02d"%random.choice(hr) + "-" + "%02d"%random.choice(min) + "-" + "%02d"%random.choice(sec)
+        employment = []
+#         start_date = "%04d"%random.choice(year) + "-" + "%02d"%random.choice(month) + "-" + "%02d"%random.choice(day)
+#         end_date = "%04d"%random.choice(year) + "-" + "%02d"%random.choice(month) + "-" + "%02d"%random.choice(day)
+         
+        EmploymentType = {"organization":random.choice(organization)}
+        employment.append(EmploymentType)
+         
+        EmploymentType = {"organization":random.choice(organization)}
+        employment.append(EmploymentType)
+
+        EmploymentType = {"organization":random.choice(organization)}
+        employment.append(EmploymentType)
+         
+        self.id = num
+#         self.alias ="Peter"+"%05d"%num
+#         self.name = "Peter Thomas"
+        self.user_since=date+"T"+time
+        self.employment=random.sample(employment,2)
+
+# class Document:
+#     def __init__(self, value, size):
+#         body_length = size - str(value).__len__() - "val".__len__() - "update".__len__() - "body".__len__()
+#         body = "".rjust(body_length, 'a')
+#         self.val = int(value)
+#         self.update = 0
+#         self.body = body
 
 class Batch:
     def __init__(self):

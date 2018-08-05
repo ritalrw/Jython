@@ -67,11 +67,11 @@ class QueryRunner(Callable):
     def call(self):
         self.thread_used = threading.currentThread().getName()
         self.started = time.time()
-#         try:
-#             self.cbas_util._run_concurrent_queries(self.statement, None, self.num_queries,batch_size=50)
-#             self.loaded += 1
-#         except Exception, ex:
-#             self.exception = ex
+        try:
+            self.cbas_util._run_concurrent_queries(self.statement, None, self.num_queries,batch_size=50)
+            self.loaded += 1
+        except Exception, ex:
+            self.exception = ex
         self.completed = time.time()
         return self
 
@@ -120,7 +120,7 @@ class analytics_high_doc_ops(CBASBaseTest):
 
         self.log.info("Create CB buckets")
             
-        self.create_bucket(self.master, "GleambookUsers",bucket_ram=available_memory)
+        self.create_bucket(self.master, "GleambookUsers",bucket_ram=available_memory, replica=0)
 #         self.create_bucket(self.master, "GleambookMessages",bucket_ram=available_memory/3)
 #         self.create_bucket(self.master, "ChirpMessages",bucket_ram=available_memory/3)
 
@@ -197,7 +197,7 @@ class analytics_high_doc_ops(CBASBaseTest):
             try:
                 items_GleambookUsers = RestConnection(self.query_node).query_tool('select count(*) from GleambookUsers')['results'][0]['$1']
                 self.log.info("Items in CB GleanBookUsers bucket: %s"%items_GleambookUsers)
-                result = self.cbas_util.validate_cbas_dataset_items_count("GleambookUsers_ds",items_GleambookUsers, num_tries=100)
+                result = self.cbas_util.validate_cbas_dataset_items_count("GleambookUsers_ds",items_GleambookUsers, num_tries=100,timeout=600,analytics_timeout=600)
                 break
             except:
                 pass
@@ -230,14 +230,8 @@ class analytics_high_doc_ops(CBASBaseTest):
 
                 
     def test_analytics_volume(self):
-        queries = ['SELECT VALUE u FROM `GleambookUsers_ds` u WHERE u.user_since >= "2010-02-13T16-48-15" AND u.user_since < "2010-10-13T16-48-15" AND (SOME e IN u.employment SATISFIES e.end_date IS UNKNOWN) LIMIT 100;',
-           'SELECT VALUE u FROM `GleambookUsers_ds` u WHERE u.user_since >= "2010-02-13T16-48-15" AND u.user_since < "2010-12-13T16-48-15" limit 100;',
-           'SELECT META(u).id AS id, COUNT(*) AS count FROM `GleambookUsers_ds` u, `GleambookMessages_ds` m WHERE TO_STRING(META(u).id) = m.author_id \
-           AND u.user_since >= "2010-02-13T16-48-15" AND u.user_since < "2010-03-13T16-48-15" AND m.send_time >= "2011-02-01T12-23-09" AND \
-           m.send_time < "2011-03-01T12-23-09" GROUP BY META(u).id;',
-           'SELECT META(u).id AS id, COUNT(*) AS count FROM `GleambookUsers_ds` u, `GleambookMessages_ds` m WHERE TO_STRING(META(u).id) = m.author_id \
-           AND u.user_since >= "2010-02-13T16-48-15" AND u.user_since < "2010-03-13T16-48-15" AND m.send_time >= "2011-10-01T12-23-09" \
-           AND m.send_time < "2011-08-01T12-23-09" GROUP BY META(u).id ORDER BY count LIMIT 10;'
+        queries = ['SELECT VALUE u FROM `GleambookUsers_ds` u WHERE u.user_since >= "2010-09-13T16-48-15" AND u.user_since < "2010-10-13T16-48-15" AND (SOME e IN u.employment SATISFIES e.end_date IS UNKNOWN) LIMIT 100;',
+           'SELECT VALUE u FROM `GleambookUsers_ds` u WHERE u.user_since >= "2010-12-13T16-48-15" AND u.user_since < "2010-12-13T16-48-15" limit 1;',
            ]
         nodes_in_cluster= [self.servers[0],self.cbas_node]
         print "Start Time: %s"%str(time.strftime("%H:%M:%S", time.gmtime(time.time())))
@@ -513,8 +507,8 @@ class analytics_high_doc_ops(CBASBaseTest):
             executors.append(QueryRunner(bucket,random.choice(queries),num_query,self.cbas_util))
          
         self.log.info("Step 22: When 21 is in progress do a KV Rebalance out of 2 nodes.")
-        rebalance = self.cluster.async_rebalance(nodes_in_cluster, [], self.kv_servers[1:3])
-        nodes_in_cluster = [node for node in nodes_in_cluster if node not in self.kv_servers[1:3]]
+        rebalance = self.cluster.async_rebalance(nodes_in_cluster, [], self.kv_servers[1:2])
+        nodes_in_cluster = [node for node in nodes_in_cluster if node not in self.kv_servers[1:2]]
          
         futures = pool.invokeAll(executors)
         self.log.info("Step 23: Wait for rebalance.")
@@ -629,9 +623,9 @@ class analytics_high_doc_ops(CBASBaseTest):
             executors.append(QueryRunner(bucket,random.choice(queries),num_query,self.cbas_util))
  
         ###################################################### NEED TO BE UPDATED ##################################################################
-        self.log.info("Step 32: When 31 is in progress do a CBAS Rebalance out of 2 nodes.")
-        rebalance = self.cluster.async_rebalance(nodes_in_cluster, [], self.cbas_servers[1:])
-        nodes_in_cluster = [node for node in nodes_in_cluster if node not in self.cbas_servers[1:]]
+        self.log.info("Step 32: When 31 is in progress do a CBAS Rebalance out of 1 nodes.")
+        rebalance = self.cluster.async_rebalance(nodes_in_cluster, [], self.cbas_servers[-1:])
+        nodes_in_cluster = [node for node in nodes_in_cluster if node not in self.cbas_servers[-1:]]
         futures = pool.invokeAll(executors)
         for future in futures:
             print future.get(num_executors, TimeUnit.SECONDS)
@@ -642,7 +636,7 @@ class analytics_high_doc_ops(CBASBaseTest):
         updates_from = items_start_from
         deletes_from = items_start_from + total_num_items/10
         items_start_from += total_num_items
-        ########################################################################################################################
+        #######################################################################################################################
         self.log.info("Step 33: Wait for rebalance to complete.")
         rebalance.get_result()
         reached = RestHelper(self.rest).rebalance_reached(wait_step=120)
@@ -702,7 +696,7 @@ class analytics_high_doc_ops(CBASBaseTest):
             executors.append(QueryRunner(bucket,random.choice(queries),num_query,self.cbas_util))
          
         ###################################################### NEED TO BE UPDATED ##################################################################
-        self.log.info("Step 38: When 37 is in progress do a CBAS SWAP Rebalance of 2 nodes.")
+        self.log.info("Step 38: When 37 is in progress do a CBAS CC SWAP Rebalance of 2 nodes.")
         for node in self.cbas_servers[-1:]:
             rest = RestConnection(node)
             rest.set_data_path(data_path=node.data_path,index_path=node.index_path,cbas_path=node.cbas_path)
@@ -860,13 +854,13 @@ class analytics_high_doc_ops(CBASBaseTest):
             executors.append(QueryRunner(bucket,random.choice(queries),num_query,self.cbas_util))
          
         ########################################################################################################################
-        self.log.info("Step 50: When 49 is in progress do a KV+CBAS Rebalance OUT.")
+        self.log.info("Step 50: When 49 is in progress do a CBAS Rebalance OUT.")
         rest = RestConnection(self.kv_servers[2])
-        rest.set_data_path(data_path=self.kv_servers[2].data_path,index_path=self.kv_servers[2].index_path,cbas_path=self.kv_servers[2].cbas_path)
-        rebalance = self.cluster.async_rebalance(nodes_in_cluster, [self.kv_servers[2]], self.cbas_servers[-1:]+[self.kv_servers[1]])
+#         rest.set_data_path(data_path=self.kv_servers[2].data_path,index_path=self.kv_servers[2].index_path,cbas_path=self.kv_servers[2].cbas_path)
+        rebalance = self.cluster.async_rebalance(nodes_in_cluster, [], self.cbas_servers[-1:])
 #         rebalance.get_result()
-        nodes_in_cluster = [node for node in nodes_in_cluster if node not in self.cbas_servers[-1:]] + [self.kv_servers[2]]
-        nodes_in_cluster.remove(self.kv_servers[1])
+        nodes_in_cluster = [node for node in nodes_in_cluster if node not in self.cbas_servers[-1:]]
+#         nodes_in_cluster.remove(self.kv_servers[1])
         
         futures = pool.invokeAll(executors)
         for future in futures:
@@ -938,18 +932,14 @@ class analytics_high_doc_ops(CBASBaseTest):
             executors.append(QueryRunner(bucket,random.choice(queries),num_query,self.cbas_util))
          
         ########################################################################################################################
-        self.log.info("Step 56: When 55 is in progress do a KV+CBAS SWAP Rebalance .")
+        self.log.info("Step 56: When 55 is in progress do a CBAS Rebalance IN.")
         for node in self.cbas_servers[-1:]:
             rest = RestConnection(node)
             rest.set_data_path(data_path=node.data_path,index_path=node.index_path,cbas_path=node.cbas_path)
-        rest = RestConnection(self.kv_servers[1])
-        rest.set_data_path(data_path=self.kv_servers[1].data_path,index_path=self.kv_servers[1].index_path,cbas_path=self.kv_servers[1].cbas_path)
-        rebalance = self.cluster.async_rebalance(nodes_in_cluster, self.cbas_servers[-1:]+[self.kv_servers[1]], [self.cbas_node, self.kv_servers[2]],services=["cbas","kv"])
-#         rebalance.get_result()
-        nodes_in_cluster.remove(self.cbas_node)
-        nodes_in_cluster.remove(self.kv_servers[2])
-        nodes_in_cluster = [node for node in nodes_in_cluster if node not in self.cbas_servers[-1:]]
-        nodes_in_cluster += [self.kv_servers[1]]
+        rest = RestConnection(self.cbas_servers[-1])
+        rest.set_data_path(data_path=self.cbas_servers[-1].data_path,index_path=self.cbas_servers[-1].index_path,cbas_path=self.cbas_servers[-1].cbas_path)
+        rebalance = self.cluster.async_rebalance(nodes_in_cluster, self.cbas_servers[-1:], [])
+        nodes_in_cluster += self.cbas_servers[-1:]
          
         futures = pool.invokeAll(executors)
         for future in futures:
