@@ -1,37 +1,17 @@
 from threading import Thread
-import bulk_doc_operations.doc_ops as doc_op
-from com.couchbase.client.java.env import DefaultCouchbaseEnvironment
-import copy
-from com.couchbase.client.java import *;
-from com.couchbase.client.java.transcoder import JsonTranscoder
-from com.couchbase.client.java.document import *;
-from com.couchbase.client.java.document.json import *;
-from com.couchbase.client.java.query import *;
 import threading
-import string
 import random
 from java.util.concurrent import Callable
 from java.util.concurrent import Executors, TimeUnit
-import json
-from lib.CbasLib.CBASOperations import CBASHelper
-import json
-from com.couchbase.client.java.analytics import AnalyticsQuery, AnalyticsParams
-import sys, time, traceback
 from pytests.cbas.cbas_base import CBASBaseTest
 from lib.membase.api.rest_client import RestConnection, RestHelper
 from TestInput import TestInputSingleton
 from bucket_utils.bucket_ready_functions import bucket_utils
 from bucket_utils.bucket_ready_functions import Bucket as buck
+import time
 
-class global_vars:
-    
-    message_id = 1
-    start_message_id = 0
-    end_message_id = 0
-    
 class QueryRunner(Callable):
-    def __init__(self, bucket, query, num_queries, cbas_util):
-        self.bucket = bucket
+    def __init__(self, query, num_queries, cbas_util):
         self.num_queries = num_queries
         self.started = None
         self.completed = None
@@ -40,12 +20,6 @@ class QueryRunner(Callable):
         self.exception = None
         self.cbas_util = cbas_util
         self.statement = query
-        self.params = AnalyticsParams.build()
-        self.params = self.params.rawParam("pretty", True)
-        self.params = self.params.rawParam("timeout", "120s")
-        self.params = self.params.rawParam("username", "Administrator")
-        self.params = self.params.rawParam("password", "password")
-        self.query = AnalyticsQuery.simple(query, self.params)
  
     def __str__(self):
         if self.exception:
@@ -121,20 +95,10 @@ class analytics_high_doc_ops(CBASBaseTest):
         self.log.info("Create CB buckets")
             
         self.create_bucket(self.master, "GleambookUsers",bucket_ram=available_memory, replica=0)
-#         self.create_bucket(self.master, "GleambookMessages",bucket_ram=available_memory/3)
-#         self.create_bucket(self.master, "ChirpMessages",bucket_ram=available_memory/3)
 
         result = RestConnection(self.query_node).query_tool("CREATE PRIMARY INDEX idx_GleambookUsers ON GleambookUsers;")
         self.sleep(10, "wait for index creation.")
         self.assertTrue(result['status'] == "success")
-
-#         result = RestConnection(self.query_node).query_tool("CREATE PRIMARY INDEX idx_GleambookMessages ON GleambookMessages;")
-#         self.sleep(10, "wait for index creation.")
-#         self.assertTrue(result['status'] == "success")
-#  
-#         result = RestConnection(self.query_node).query_tool("CREATE PRIMARY INDEX idx_ChirpMessages ON ChirpMessages;")
-#         self.sleep(10, "wait for index creation.")
-#         self.assertTrue(result['status'] == "success")
 
     def setup_cbas(self):
         self.cbas_util.createConn("GleambookUsers")
@@ -143,11 +107,6 @@ class analytics_high_doc_ops(CBASBaseTest):
         # Create dataset on the CBAS bucket
         self.cbas_util.create_dataset_on_bucket(cbas_bucket_name="GleambookUsers",
                                                 cbas_dataset_name="GleambookUsers_ds")
-#         self.cbas_util.create_dataset_on_bucket(cbas_bucket_name="GleambookMessages",
-#                                                 cbas_dataset_name="GleambookMessages_ds")
-#         self.cbas_util.create_dataset_on_bucket(cbas_bucket_name="ChirpMessages",
-#                                                 cbas_dataset_name="ChirpMessages_ds")
-        
         # Connect to Bucket
         self.connect_cbas_buckets()
         
@@ -155,40 +114,22 @@ class analytics_high_doc_ops(CBASBaseTest):
         # Connect to Bucket
         self.cbas_util.connect_to_bucket(cbas_bucket_name='GleambookUsers',
                                cb_bucket_password=self.cb_bucket_password)
-#         self.cbas_util.connect_to_bucket(cbas_bucket_name='GleambookMessages',
-#                                cb_bucket_password=self.cb_bucket_password)
-#         self.cbas_util.connect_to_bucket(cbas_bucket_name='ChirpMessages',
-#                                cb_bucket_password=self.cb_bucket_password)
         
     def disconnect_cbas_buckets(self):
         
         result = self.cbas_util.disconnect_from_bucket(cbas_bucket_name="GleambookUsers")
         self.assertTrue(result, "Disconnect GleambookUsers bucket failed")
-#         result = self.cbas_util.disconnect_from_bucket(cbas_bucket_name="GleambookMessages")
-#         self.assertTrue(result, "Disconnect GleambookMessages bucket failed")
-#         result = self.cbas_util.disconnect_from_bucket(cbas_bucket_name="ChirpMessages")
-#         self.assertTrue(result, "Disconnect ChirpMessages bucket failed")
 
     def create_cbas_indexes(self):
         #create Indexes
         status, metrics, errors, results, _ = self.cbas_util.execute_statement_on_cbas_util(
             "CREATE INDEX usrSinceIdx ON `GleambookUsers_ds`(user_since: string);",timeout=3600,analytics_timeout=3600)
         self.assertTrue(status == "success", "Create Index query failed")
-#         status, metrics, errors, results, _ = self.cbas_util.execute_statement_on_cbas_util(
-#             "CREATE INDEX authorIdIdx ON `GleambookMessages_ds`(author_id: string);",timeout=300,analytics_timeout=300)
-#         self.assertTrue(status == "success", "Create Index query failed")
-#         status, metrics, errors, results, _ = self.cbas_util.execute_statement_on_cbas_util(
-#             "CREATE INDEX sndTimeIdx  ON `ChirpMessages_ds`(send_time: string);",timeout=300,analytics_timeout=300)
-#         self.assertTrue(status == "success", "Create Index query failed")
 
             
     def validate_items_count(self):
         items_GleambookUsers = RestConnection(self.query_node).query_tool('select count(*) from GleambookUsers')['results'][0]['$1']
-#         items_GleambookMessages = RestConnection(self.query_node).query_tool('select count(*) from GleambookMessages')['results'][0]['$1']
-#         items_ChirpMessages = RestConnection(self.query_node).query_tool('select count(*) from ChirpMessages')['results'][0]['$1']
         self.log.info("Items in CB GleanBookUsers bucket: %s"%items_GleambookUsers)
-#         self.log.info("Items in CB GleambookMessages bucket: %s"%items_GleambookMessages)
-#         self.log.info("Items in CB ChirpMessages bucket: %s"%items_ChirpMessages)
         
         self.sleep(60)
         result = False
@@ -206,32 +147,9 @@ class analytics_high_doc_ops(CBASBaseTest):
             
         self.assertTrue(result,"No. of items in GleambookUsers dataset do not match that in the CB bucket")
         
-#         result = False
-#         tries = 10
-#         while tries>0:
-#             try:
-#                 result = self.cbas_util.validate_cbas_dataset_items_count("GleambookMessages_ds",items_GleambookMessages, num_tries=100)
-#                 break
-#             except:
-#                 pass
-#             tries -= 1
-#         self.assertTrue(result,"No. of items in GleambookMessages dataset do not match that in the CB bucket")
-#         
-#         result = False
-#         tries = 10
-#         while tries>0:
-#             try:
-#                 result = self.cbas_util.validate_cbas_dataset_items_count("ChirpMessages_ds",items_ChirpMessages, num_tries=100)
-#                 break
-#             except:
-#                 pass
-#             tries -= 1
-#         self.assertTrue(result,"No. of items in ChirpMessages dataset do not match that in the CB bucket")
-
-                
     def test_analytics_volume(self):
         queries = ['SELECT VALUE u FROM `GleambookUsers_ds` u WHERE u.user_since >= "2010-09-13T16-48-15" AND u.user_since < "2010-10-13T16-48-15" AND (SOME e IN u.employment SATISFIES e.end_date IS UNKNOWN) LIMIT 100;',
-           'SELECT VALUE u FROM `GleambookUsers_ds` u WHERE u.user_since >= "2010-12-13T16-48-15" AND u.user_since < "2010-12-13T16-48-15" limit 1;',
+           'SELECT VALUE u FROM `GleambookUsers_ds` u WHERE u.user_since >= "2010-11-13T16-48-15" AND u.user_since < "2010-12-13T16-48-15" limit 1;',
            ]
         nodes_in_cluster= [self.servers[0],self.cbas_node]
         print "Start Time: %s"%str(time.strftime("%H:%M:%S", time.gmtime(time.time())))
@@ -274,28 +192,12 @@ class analytics_high_doc_ops(CBASBaseTest):
         
         ########################################################################################################################
         self.log.info("Step 3: Create 10M docs average of 1k docs for 8 couchbase buckets.")
-#         env = DefaultCouchbaseEnvironment.builder().mutationTokensEnabled(True).computationPoolSize(5).socketConnectTimeout(100000).connectTimeout(100000).maxRequestLifetime(TimeUnit.SECONDS.toMillis(300)).build();
-#         cluster = CouchbaseCluster.create(env, self.master.ip);
-#         cluster.authenticate("Administrator","password")
-#         bucket = cluster.openBucket("GleambookUsers");
-#         msg_bucket = cluster.openBucket("GleambookMessages")
         
         GleambookUsers = buck(name="GleambookUsers", authType=None, saslPassword=None,
                             num_replicas=self.num_replicas,
                             bucket_size=self.bucket_size,
                             eviction_policy='noEviction', lww=self.lww)
         
-        GleambookMessages = buck(name="GleambookMessages", authType=None, saslPassword=None,
-                            num_replicas=self.num_replicas,
-                            bucket_size=self.bucket_size,
-                            eviction_policy='noEviction', lww=self.lww)
-        
-        ChirpMessages = buck(name="ChirpMessages", authType=None, saslPassword=None,
-                            num_replicas=self.num_replicas,
-                            bucket_size=self.bucket_size,
-                            eviction_policy='noEviction', lww=self.lww)
-        
-        pool = Executors.newFixedThreadPool(5)
         items_start_from = 0
         total_num_items = self.input.param("num_items",1000000)
         num_query = self.input.param("num_query",240)
@@ -355,7 +257,7 @@ class analytics_high_doc_ops(CBASBaseTest):
         upsert_thread.start()
         
         for i in xrange(query_executors):
-            executors.append(QueryRunner(bucket,random.choice(queries),num_query,self.cbas_util))
+            executors.append(QueryRunner(random.choice(queries),num_query,self.cbas_util))
         futures = pool.invokeAll(executors)
         for future in futures:
             print future.get(num_executors, TimeUnit.SECONDS)
@@ -395,7 +297,7 @@ class analytics_high_doc_ops(CBASBaseTest):
         load_thread.start()
 
         for i in xrange(query_executors):
-            executors.append(QueryRunner(bucket,random.choice(queries),num_query,self.cbas_util))
+            executors.append(QueryRunner(random.choice(queries),num_query,self.cbas_util))
         futures = pool.invokeAll(executors)
         for future in futures:
             print future.get(num_executors, TimeUnit.SECONDS)
@@ -436,7 +338,7 @@ class analytics_high_doc_ops(CBASBaseTest):
         upsert_thread.start()
         
         for i in xrange(query_executors):
-            executors.append(QueryRunner(bucket,random.choice(queries),num_query,self.cbas_util))
+            executors.append(QueryRunner(random.choice(queries),num_query,self.cbas_util))
         futures = pool.invokeAll(executors)
         for future in futures:
             print future.get(num_executors, TimeUnit.SECONDS)
@@ -468,7 +370,7 @@ class analytics_high_doc_ops(CBASBaseTest):
         load_thread.start()
 
         for i in xrange(query_executors):
-            executors.append(QueryRunner(bucket,random.choice(queries),num_query,self.cbas_util))
+            executors.append(QueryRunner(random.choice(queries),num_query,self.cbas_util))
         futures = pool.invokeAll(executors)
         for future in futures:
             print future.get(num_executors, TimeUnit.SECONDS)
@@ -504,7 +406,7 @@ class analytics_high_doc_ops(CBASBaseTest):
         num_executors = 5
         query_executors = num_executors
         for i in xrange(query_executors):
-            executors.append(QueryRunner(bucket,random.choice(queries),num_query,self.cbas_util))
+            executors.append(QueryRunner(random.choice(queries),num_query,self.cbas_util))
          
         self.log.info("Step 22: When 21 is in progress do a KV Rebalance out of 2 nodes.")
         rebalance = self.cluster.async_rebalance(nodes_in_cluster, [], self.kv_servers[1:2])
@@ -540,10 +442,10 @@ class analytics_high_doc_ops(CBASBaseTest):
         self.log.info('starting the load thread...')
         load_thread.start()
         for i in xrange(query_executors):
-            executors.append(QueryRunner(bucket,random.choice(queries),num_query,self.cbas_util))
+            executors.append(QueryRunner(random.choice(queries),num_query,self.cbas_util))
          
         self.log.info("Step 26: Run 500 complex queries concurrently and verify the results.")
-        executors.append(QueryRunner(bucket,random.choice(queries),500,self.cbas_util))
+        executors.append(QueryRunner(random.choice(queries),500,self.cbas_util))
          
          
         ##################################################### NEED TO BE UPDATED ##################################################################
@@ -592,7 +494,7 @@ class analytics_high_doc_ops(CBASBaseTest):
         upsert_thread.start()
         
         for i in xrange(query_executors):
-            executors.append(QueryRunner(bucket,random.choice(queries),num_query,self.cbas_util))
+            executors.append(QueryRunner(random.choice(queries),num_query,self.cbas_util))
         futures = pool.invokeAll(executors)
         for future in futures:
             print future.get(num_executors, TimeUnit.SECONDS)
@@ -620,7 +522,7 @@ class analytics_high_doc_ops(CBASBaseTest):
         load_thread.start()
 
         for i in xrange(query_executors):
-            executors.append(QueryRunner(bucket,random.choice(queries),num_query,self.cbas_util))
+            executors.append(QueryRunner(random.choice(queries),num_query,self.cbas_util))
  
         ###################################################### NEED TO BE UPDATED ##################################################################
         self.log.info("Step 32: When 31 is in progress do a CBAS Rebalance out of 1 nodes.")
@@ -665,7 +567,7 @@ class analytics_high_doc_ops(CBASBaseTest):
         upsert_thread.start()
         
         for i in xrange(query_executors):
-            executors.append(QueryRunner(bucket,random.choice(queries),num_query,self.cbas_util))
+            executors.append(QueryRunner(random.choice(queries),num_query,self.cbas_util))
         futures = pool.invokeAll(executors)
         for future in futures:
             print future.get(num_executors, TimeUnit.SECONDS)
@@ -693,7 +595,7 @@ class analytics_high_doc_ops(CBASBaseTest):
         load_thread.start()
 
         for i in xrange(query_executors):
-            executors.append(QueryRunner(bucket,random.choice(queries),num_query,self.cbas_util))
+            executors.append(QueryRunner(random.choice(queries),num_query,self.cbas_util))
          
         ###################################################### NEED TO BE UPDATED ##################################################################
         self.log.info("Step 38: When 37 is in progress do a CBAS CC SWAP Rebalance of 2 nodes.")
@@ -743,7 +645,7 @@ class analytics_high_doc_ops(CBASBaseTest):
         upsert_thread.start()
         
         for i in xrange(query_executors):
-            executors.append(QueryRunner(bucket,random.choice(queries),num_query,self.cbas_util))
+            executors.append(QueryRunner(random.choice(queries),num_query,self.cbas_util))
         futures = pool.invokeAll(executors)
         for future in futures:
             print future.get(num_executors, TimeUnit.SECONDS)
@@ -771,7 +673,7 @@ class analytics_high_doc_ops(CBASBaseTest):
         load_thread.start()
 
         for i in xrange(query_executors):
-            executors.append(QueryRunner(bucket,random.choice(queries),num_query,self.cbas_util))
+            executors.append(QueryRunner(random.choice(queries),num_query,self.cbas_util))
          
         ###################################################### NEED TO BE UPDATED ##################################################################
         self.log.info("Step 44: When 43 is in progress do a KV+CBAS Rebalance IN.")
@@ -823,7 +725,7 @@ class analytics_high_doc_ops(CBASBaseTest):
         upsert_thread.start()
         
         for i in xrange(query_executors):
-            executors.append(QueryRunner(bucket,random.choice(queries),num_query,self.cbas_util))
+            executors.append(QueryRunner(random.choice(queries),num_query,self.cbas_util))
         futures = pool.invokeAll(executors)
         for future in futures:
             print future.get(num_executors, TimeUnit.SECONDS)
@@ -851,7 +753,7 @@ class analytics_high_doc_ops(CBASBaseTest):
         load_thread.start()
 
         for i in xrange(query_executors):
-            executors.append(QueryRunner(bucket,random.choice(queries),num_query,self.cbas_util))
+            executors.append(QueryRunner(random.choice(queries),num_query,self.cbas_util))
          
         ########################################################################################################################
         self.log.info("Step 50: When 49 is in progress do a CBAS Rebalance OUT.")
@@ -900,7 +802,7 @@ class analytics_high_doc_ops(CBASBaseTest):
         upsert_thread.start()
         
         for i in xrange(query_executors):
-            executors.append(QueryRunner(bucket,random.choice(queries),num_query,self.cbas_util))
+            executors.append(QueryRunner(random.choice(queries),num_query,self.cbas_util))
         futures = pool.invokeAll(executors)
         for future in futures:
             print future.get(num_executors, TimeUnit.SECONDS)
@@ -929,7 +831,7 @@ class analytics_high_doc_ops(CBASBaseTest):
         load_thread.start()
 
         for i in xrange(query_executors):
-            executors.append(QueryRunner(bucket,random.choice(queries),num_query,self.cbas_util))
+            executors.append(QueryRunner(random.choice(queries),num_query,self.cbas_util))
          
         ########################################################################################################################
         self.log.info("Step 56: When 55 is in progress do a CBAS Rebalance IN.")
@@ -938,7 +840,7 @@ class analytics_high_doc_ops(CBASBaseTest):
             rest.set_data_path(data_path=node.data_path,index_path=node.index_path,cbas_path=node.cbas_path)
         rest = RestConnection(self.cbas_servers[-1])
         rest.set_data_path(data_path=self.cbas_servers[-1].data_path,index_path=self.cbas_servers[-1].index_path,cbas_path=self.cbas_servers[-1].cbas_path)
-        rebalance = self.cluster.async_rebalance(nodes_in_cluster, self.cbas_servers[-1:], [])
+        rebalance = self.cluster.async_rebalance(nodes_in_cluster, self.cbas_servers[-1:], [], services=["cbas"])
         nodes_in_cluster += self.cbas_servers[-1:]
          
         futures = pool.invokeAll(executors)
@@ -980,7 +882,7 @@ class analytics_high_doc_ops(CBASBaseTest):
         upsert_thread.start()
         
         for i in xrange(query_executors):
-            executors.append(QueryRunner(bucket,random.choice(queries),num_query,self.cbas_util))
+            executors.append(QueryRunner(random.choice(queries),num_query,self.cbas_util))
         futures = pool.invokeAll(executors)
         for future in futures:
             print future.get(num_executors, TimeUnit.SECONDS)
@@ -994,9 +896,5 @@ class analytics_high_doc_ops(CBASBaseTest):
         self.validate_items_count() 
                  
  
-        bucket.close()
-#         msg_bucket.close()
-        cluster.disconnect()
-        
         print "End Time: %s"%str(time.strftime("%H:%M:%S", time.gmtime(time.time())))
 
