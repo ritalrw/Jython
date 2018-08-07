@@ -136,6 +136,7 @@ class RestConnection(object):
         authorization = base64.encodestring('%s:%s' % (username, password))
         return {'Content-Type': 'application/json',
                 'Authorization': 'Basic %s' % authorization,
+                'Connection': 'close',
                 'Accept': '*/*'}
 
     def _get_auth(self, headers):
