@@ -674,6 +674,7 @@ class RestConnection(object):
         authorization = base64.encodestring('%s:%s' % (self.username, self.password))
         return {'Content-Type': 'application/json',
                 'Authorization': 'Basic %s' % authorization,
+                'Connection': 'close',
                 'Accept': '*/*'}
 
     def _create_headers_with_auth(self, username, password):
@@ -685,12 +686,14 @@ class RestConnection(object):
         authorization = base64.encodestring('%s:%s' % (self.username, self.password))
         return {'Content-Type': 'application/x-www-form-urlencoded',
                 'Authorization': 'Basic %s' % authorization,
+                'Connection': 'close',
                 'Accept': '*/*'}
 
     # authorization must be a base64 string of username:password
     def _create_headers_encoded_prepared(self):
         authorization = base64.encodestring('%s:%s' % (self.username, self.password))
         return {'Content-Type': 'application/json',
+                'Connection': 'close',
                 'Authorization': 'Basic %s' % authorization}
 
     def _get_auth(self, headers):

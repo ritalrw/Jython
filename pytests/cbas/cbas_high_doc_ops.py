@@ -311,7 +311,7 @@ class analytics_high_doc_ops(CBASBaseTest):
                  
         ########################################################################################################################
         self.log.info("Step 13: Wait for rebalance to complete.")
-        rebalance.get_result()
+        
         reached = RestHelper(self.rest).rebalance_reached(wait_step=120)
         self.assertTrue(reached, "rebalance failed, stuck or did not complete")
         self.sleep(20)
@@ -414,7 +414,7 @@ class analytics_high_doc_ops(CBASBaseTest):
          
         futures = pool.invokeAll(executors)
         self.log.info("Step 23: Wait for rebalance.")
-        rebalance.get_result()
+        
         reached = RestHelper(self.rest).rebalance_reached(wait_step=120)
         self.assertTrue(reached, "rebalance failed, stuck or did not complete")
         self.sleep(20)
@@ -468,7 +468,7 @@ class analytics_high_doc_ops(CBASBaseTest):
         items_start_from += total_num_items
  
         self.log.info("Step 27: Wait for rebalance to complete.")
-        rebalance.get_result()
+        
         reached = RestHelper(self.rest).rebalance_reached(wait_step=120)
         self.assertTrue(reached, "rebalance failed, stuck or did not complete")
          
@@ -540,7 +540,7 @@ class analytics_high_doc_ops(CBASBaseTest):
         items_start_from += total_num_items
         #######################################################################################################################
         self.log.info("Step 33: Wait for rebalance to complete.")
-        rebalance.get_result()
+        
         reached = RestHelper(self.rest).rebalance_reached(wait_step=120)
         self.assertTrue(reached, "rebalance failed, stuck or did not complete")
         self.sleep(20)
@@ -611,10 +611,10 @@ class analytics_high_doc_ops(CBASBaseTest):
         print "Executors completed!!"
         shutdown_and_await_termination(pool, num_executors)
         load_thread.join()
-         
+        
         ########################################################################################################################
         self.log.info("Step 39: Wait for rebalance to complete.")
-        rebalance.get_result()
+        
         reached = RestHelper(self.rest).rebalance_reached(wait_step=120)
         self.assertTrue(reached, "rebalance failed, stuck or did not complete")
         self.sleep(20)
@@ -694,7 +694,7 @@ class analytics_high_doc_ops(CBASBaseTest):
         load_thread.join()
         ########################################################################################################################
         self.log.info("Step 45: Wait for rebalance to complete.")
-        rebalance.get_result()
+        
         reached = RestHelper(self.rest).rebalance_reached(wait_step=120)
         self.assertTrue(reached, "rebalance failed, stuck or did not complete")
         self.sleep(20)
@@ -760,7 +760,7 @@ class analytics_high_doc_ops(CBASBaseTest):
         rest = RestConnection(self.kv_servers[2])
 #         rest.set_data_path(data_path=self.kv_servers[2].data_path,index_path=self.kv_servers[2].index_path,cbas_path=self.kv_servers[2].cbas_path)
         rebalance = self.cluster.async_rebalance(nodes_in_cluster, [], self.cbas_servers[-1:])
-#         rebalance.get_result()
+#         
         nodes_in_cluster = [node for node in nodes_in_cluster if node not in self.cbas_servers[-1:]]
 #         nodes_in_cluster.remove(self.kv_servers[1])
         
@@ -772,7 +772,7 @@ class analytics_high_doc_ops(CBASBaseTest):
         load_thread.join()
         ########################################################################################################################
         self.log.info("Step 51: Wait for rebalance to complete.")
-        rebalance.get_result()
+        
         reached = RestHelper(self.rest).rebalance_reached(wait_step=120)
         self.assertTrue(reached, "rebalance failed, stuck or did not complete")
         self.sleep(20)
@@ -851,7 +851,7 @@ class analytics_high_doc_ops(CBASBaseTest):
         load_thread.join()
         ########################################################################################################################
         self.log.info("Step 57: Wait for rebalance to complete.")
-        rebalance.get_result()
+        
         reached = RestHelper(self.rest).rebalance_reached(wait_step=120)
         self.assertTrue(reached, "rebalance failed, stuck or did not complete")
         self.sleep(20)
