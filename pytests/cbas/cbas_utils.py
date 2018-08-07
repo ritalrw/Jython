@@ -539,7 +539,11 @@ class cbas_utils():
         Deletes a request from CBAS
         """
         try:
-            payload = "client_context_id=" + client_context_id
+            if client_context_id:
+                payload = "client_context_id=" + client_context_id
+            elif client_context_id == None:
+                payload = "client_context_id=None"
+                
             status = self.cbas_helper.delete_active_request_on_cbas(payload,username, password)
             self.log.info (status)
             return status

@@ -110,6 +110,7 @@ class CBASHelper(CBAS_helper_rest, SDKClient):
             output["errors"] = json.loads(str(result.errors()))
             
             if str(output['status']) == "fatal":
+                log.error(output['errors'])
                 msg = output['errors'][0]['msg']
                 if "Job requirement" in  msg and "exceeds capacity" in msg:
                     raise Exception("Capacity cannot meet job requirement")

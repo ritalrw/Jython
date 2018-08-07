@@ -171,17 +171,17 @@ class CBASTuqSanity(QuerySanityTests):
            "15:04:05+07:00",
            "15:04:05"]
 
-    def test_regex_replace(self):
-        for bucket in self.buckets:
-            self.query = "select name, REGEXP_REPLACE(email, '-mail', 'domain') as mail from %s" % (bucket.name)
-
-            actual_list = self.run_cbq_query()
-            actual_result = sorted(actual_list['results'])
-            expected_result = [{"name" : doc["name"],
-                                "mail" : doc["email"].replace('-mail', 'domain')}
-                               for doc in self.full_list]
-            expected_result = sorted(expected_result)
-            self._verify_results(actual_result, expected_result)
+#     def test_regex_replace(self):
+#         for bucket in self.buckets:
+#             self.query = "select name, REGEXP_REPLACE(email, '-mail', 'domain') as mail from %s" % (bucket.name)
+# 
+#             actual_list = self.run_cbq_query()
+#             actual_result = sorted(actual_list['results'])
+#             expected_result = [{"name" : doc["name"],
+#                                 "mail" : doc["email"].replace('-mail', 'domain')}
+#                                for doc in self.full_list]
+#             expected_result = sorted(expected_result)
+#             self._verify_results(actual_result, expected_result)
             
     def test_to_str(self):
         for bucket in self.buckets:
@@ -695,7 +695,7 @@ class CBASTuqSanity(QuerySanityTests):
         self.assertTrue(actual_result['status'] == "success")
 
     def test_decode_json(self):
-        self.query = 'select DECODE_JSON("{"key":"value"}")'
+        self.query = '''select DECODE_JSON('{"key":"value"}')'''
         
         actual_result = self.run_cbq_query()
         self.assertTrue(actual_result['status'] == "success")
@@ -982,6 +982,20 @@ class CBASTuqSanity(QuerySanityTests):
             actual_result = sorted(actual_result['results'], key=lambda doc: (doc['name']))
             self._verify_results(actual_result, expected_result)
 
+    def test_tan(self):
+        self.query = "select tan(radians(45))"
+        actual_list = self.run_cbq_query()
+        expected_result = 1
+        actual_result = int(math.ceil(actual_list['results'][0]['$1']*1000000000000000)/1000000000000000)
+        self.assertTrue(actual_result==expected_result, "The result of the query is: %s"%actual_list)
+        
+    def test_asin(self):
+        self.query = "select degrees(asin(0.5))"
+        actual_list = self.run_cbq_query()
+        actual_result = int(math.ceil(actual_list['results'][0]['$1']*1000000000000000)/1000000000000000)
+        expected_result = 30
+        self.assertTrue(actual_result==expected_result, "The result of the query is: %s"%actual_list)
+        
     def test_clock_formats(self):
         self.query = 'SELECT NOW_LOCAL("2006-01-02") as NOW_LOCAL, \
         NOW_STR("2006-01-02") as NOW_STR, \
