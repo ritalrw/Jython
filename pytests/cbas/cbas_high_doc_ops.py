@@ -244,7 +244,7 @@ class analytics_high_doc_ops(CBASBaseTest):
         pool = Executors.newFixedThreadPool(5)
         num_items = self.input.param("num_items",5000)
         executors=[]
-        query_executors = 2
+        query_executors = 1
         num_executors = query_executors
 
         upsert_thread = Thread(target=self.load_buckets_with_high_ops,
@@ -325,7 +325,7 @@ class analytics_high_doc_ops(CBASBaseTest):
         pool = Executors.newFixedThreadPool(5)
         num_items = self.input.param("num_items",5000)
         executors=[]
-        query_executors = 2
+        query_executors = 1
         num_executors = query_executors
 
         upsert_thread = Thread(target=self.load_buckets_with_high_ops,
@@ -481,7 +481,7 @@ class analytics_high_doc_ops(CBASBaseTest):
         pool = Executors.newFixedThreadPool(5)
         num_items = self.input.param("num_items",5000)
         executors=[]
-        query_executors = 2
+        query_executors = 1
         num_executors = query_executors
 
         upsert_thread = Thread(target=self.load_buckets_with_high_ops,
@@ -554,7 +554,7 @@ class analytics_high_doc_ops(CBASBaseTest):
         pool = Executors.newFixedThreadPool(5)
         num_items = self.input.param("num_items",5000)
         executors=[]
-        query_executors = 2
+        query_executors = 1
         num_executors = query_executors
 
         upsert_thread = Thread(target=self.load_buckets_with_high_ops,
@@ -632,7 +632,7 @@ class analytics_high_doc_ops(CBASBaseTest):
         pool = Executors.newFixedThreadPool(5)
         num_items = self.input.param("num_items",5000)
         executors=[]
-        query_executors = 2
+        query_executors = 1
         num_executors = query_executors
 
         upsert_thread = Thread(target=self.load_buckets_with_high_ops,
@@ -712,7 +712,7 @@ class analytics_high_doc_ops(CBASBaseTest):
         pool = Executors.newFixedThreadPool(5)
         num_items = self.input.param("num_items",5000)
         executors=[]
-        query_executors = 2
+        query_executors = 1
         num_executors = query_executors
 
         upsert_thread = Thread(target=self.load_buckets_with_high_ops,
@@ -789,7 +789,7 @@ class analytics_high_doc_ops(CBASBaseTest):
         pool = Executors.newFixedThreadPool(5)
         num_items = self.input.param("num_items",5000)
         executors=[]
-        query_executors = 2
+        query_executors = 1
         num_executors = query_executors
 
         upsert_thread = Thread(target=self.load_buckets_with_high_ops,
@@ -869,7 +869,7 @@ class analytics_high_doc_ops(CBASBaseTest):
         pool = Executors.newFixedThreadPool(5)
         num_items = self.input.param("num_items",5000)
         executors=[]
-        query_executors = 2
+        query_executors = 1
         num_executors = query_executors
 
         upsert_thread = Thread(target=self.load_buckets_with_high_ops,
