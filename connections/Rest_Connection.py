@@ -184,5 +184,6 @@ class RestConnection(object):
         authorization = base64.encodestring('%s:%s' % (self.username, self.password))
         return {'Content-Type': 'application/x-www-form-urlencoded',
                 'Authorization': 'Basic %s' % authorization,
+                'Connection': 'close',
                 'Accept': '*/*'}
 

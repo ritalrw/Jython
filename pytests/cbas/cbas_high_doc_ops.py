@@ -96,7 +96,6 @@ class analytics_high_doc_ops(CBASBaseTest):
             
         self.create_bucket(self.master, "GleambookUsers",bucket_ram=available_memory, replica=0)
         self.sleep(30, "wait for bucket warmup to complete.")
-        
         result = RestConnection(self.query_node).query_tool("CREATE PRIMARY INDEX idx_GleambookUsers ON GleambookUsers;")
         self.sleep(10, "wait for index creation.")
         self.assertTrue(result['status'] == "success")
