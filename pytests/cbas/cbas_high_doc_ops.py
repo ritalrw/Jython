@@ -9,6 +9,7 @@ from TestInput import TestInputSingleton
 from bucket_utils.bucket_ready_functions import bucket_utils
 from bucket_utils.bucket_ready_functions import Bucket as buck
 import time
+from pytests.cbas.cbas_utils import cbas_utils
 
 class QueryRunner(Callable):
     def __init__(self, query, num_queries, cbas_util):
@@ -206,7 +207,7 @@ class analytics_high_doc_ops(CBASBaseTest):
         self.rate_limit = self.input.param('rate_limit', '100000')
         load_thread = Thread(target=self.load_buckets_with_high_ops,
                                  name="high_ops_load",
-                                 args=(self.master, GleambookUsers, total_num_items,50,5, items_start_from,4, 0))
+                                 args=(self.master, GleambookUsers, total_num_items,50,4, items_start_from,2, 0))
         self.log.info('starting the load thread...')
         load_thread.start()
         load_thread.join()
@@ -218,7 +219,7 @@ class analytics_high_doc_ops(CBASBaseTest):
         self.log.info("Step 4: Create 8 analytics buckets and 8 datasets and connect.")
         load_thread = Thread(target=self.load_buckets_with_high_ops,
                                  name="high_ops_load",
-                                 args=(self.master, GleambookUsers, total_num_items,50,5, items_start_from,4, 0))
+                                 args=(self.master, GleambookUsers, total_num_items,50,4, items_start_from,2, 0))
         self.log.info('starting the load thread...')
         load_thread.start()
         
@@ -249,10 +250,10 @@ class analytics_high_doc_ops(CBASBaseTest):
 
         upsert_thread = Thread(target=self.load_buckets_with_high_ops,
                                  name="high_ops_delete",
-                                 args=(self.master, GleambookUsers, num_items/10,10000,5, updates_from,4, 0))
+                                 args=(self.master, GleambookUsers, num_items/10,10000,4, updates_from,2, 0))
         delete_thread = Thread(target=self.delete_buckets_with_high_ops,
                                  name="high_ops_delete",
-                                 args=(self.master, GleambookUsers, num_items/10, self.rate_limit, 10000, 5, deletes_from,2))
+                                 args=(self.master, GleambookUsers, num_items/10, self.rate_limit, 10000, 2, deletes_from,1))
         delete_thread.start()
         upsert_thread.start()
         
@@ -292,7 +293,7 @@ class analytics_high_doc_ops(CBASBaseTest):
         self.rate_limit = self.input.param('rate_limit', '100000')
         load_thread = Thread(target=self.load_buckets_with_high_ops,
                                  name="high_ops_load",
-                                 args=(self.master, GleambookUsers, total_num_items,50,5, items_start_from,4, 0))
+                                 args=(self.master, GleambookUsers, total_num_items,50,4, items_start_from,2, 0))
         self.log.info('starting the load thread...')
         load_thread.start()
 
@@ -330,10 +331,10 @@ class analytics_high_doc_ops(CBASBaseTest):
 
         upsert_thread = Thread(target=self.load_buckets_with_high_ops,
                                  name="high_ops_delete",
-                                 args=(self.master, GleambookUsers, num_items/10,10000,5, updates_from,4, 0))
+                                 args=(self.master, GleambookUsers, num_items/10,10000,4, updates_from,2, 0))
         delete_thread = Thread(target=self.delete_buckets_with_high_ops,
                                  name="high_ops_delete",
-                                 args=(self.master, GleambookUsers, num_items/10, self.rate_limit, 10000, 5, deletes_from,2))
+                                 args=(self.master, GleambookUsers, num_items/10, self.rate_limit, 10000, 2, deletes_from,1))
         delete_thread.start()
         upsert_thread.start()
         
@@ -365,7 +366,7 @@ class analytics_high_doc_ops(CBASBaseTest):
         self.rate_limit = self.input.param('rate_limit', '100000')
         load_thread = Thread(target=self.load_buckets_with_high_ops,
                                  name="high_ops_load",
-                                 args=(self.master, GleambookUsers, total_num_items,50,5, items_start_from,4, 0))
+                                 args=(self.master, GleambookUsers, total_num_items,50,4, items_start_from,2, 0))
         self.log.info('starting the load thread...')
         load_thread.start()
 
@@ -438,7 +439,7 @@ class analytics_high_doc_ops(CBASBaseTest):
         self.rate_limit = self.input.param('rate_limit', '100000')
         load_thread = Thread(target=self.load_buckets_with_high_ops,
                                  name="high_ops_load",
-                                 args=(self.master, GleambookUsers, total_num_items,50,5, items_start_from,4, 0))
+                                 args=(self.master, GleambookUsers, total_num_items,50,4, items_start_from,2, 0))
         self.log.info('starting the load thread...')
         load_thread.start()
         for i in xrange(query_executors):
@@ -486,10 +487,10 @@ class analytics_high_doc_ops(CBASBaseTest):
 
         upsert_thread = Thread(target=self.load_buckets_with_high_ops,
                                  name="high_ops_delete",
-                                 args=(self.master, GleambookUsers, num_items/10,10000,5, updates_from,4, 0))
+                                 args=(self.master, GleambookUsers, num_items/10,10000,4, updates_from,2, 0))
         delete_thread = Thread(target=self.delete_buckets_with_high_ops,
                                  name="high_ops_delete",
-                                 args=(self.master, GleambookUsers, num_items/10, self.rate_limit, 10000, 5, deletes_from,2))
+                                 args=(self.master, GleambookUsers, num_items/10, self.rate_limit, 10000, 2, deletes_from,1))
         delete_thread.start()
         upsert_thread.start()
         
@@ -517,7 +518,7 @@ class analytics_high_doc_ops(CBASBaseTest):
         self.rate_limit = self.input.param('rate_limit', '100000')
         load_thread = Thread(target=self.load_buckets_with_high_ops,
                                  name="high_ops_load",
-                                 args=(self.master, GleambookUsers, total_num_items,50,5, items_start_from,4, 0))
+                                 args=(self.master, GleambookUsers, total_num_items,50,4, items_start_from,2, 0))
         self.log.info('starting the load thread...')
         load_thread.start()
 
@@ -559,10 +560,10 @@ class analytics_high_doc_ops(CBASBaseTest):
 
         upsert_thread = Thread(target=self.load_buckets_with_high_ops,
                                  name="high_ops_delete",
-                                 args=(self.master, GleambookUsers, num_items/10,10000,5, updates_from,4, 0))
+                                 args=(self.master, GleambookUsers, num_items/10,10000,4, updates_from,2, 0))
         delete_thread = Thread(target=self.delete_buckets_with_high_ops,
                                  name="high_ops_delete",
-                                 args=(self.master, GleambookUsers, num_items/10, self.rate_limit, 10000, 5, deletes_from,2))
+                                 args=(self.master, GleambookUsers, num_items/10, self.rate_limit, 10000, 2, deletes_from,1))
         delete_thread.start()
         upsert_thread.start()
         
@@ -590,7 +591,7 @@ class analytics_high_doc_ops(CBASBaseTest):
         self.rate_limit = self.input.param('rate_limit', '100000')
         load_thread = Thread(target=self.load_buckets_with_high_ops,
                                  name="high_ops_load",
-                                 args=(self.master, GleambookUsers, total_num_items,50,5, items_start_from,4, 0))
+                                 args=(self.master, GleambookUsers, total_num_items,50,4, items_start_from,2, 0))
         self.log.info('starting the load thread...')
         load_thread.start()
 
@@ -599,6 +600,10 @@ class analytics_high_doc_ops(CBASBaseTest):
          
         ###################################################### NEED TO BE UPDATED ##################################################################
         self.log.info("Step 38: When 37 is in progress do a CBAS CC SWAP Rebalance of 2 nodes.")
+        self.cbas_util.closeConn()
+        self.cbas_util = cbas_utils(self.master,self.cbas_servers[0])
+        self.cbas_util.createConn("GleambookUsers")
+        
         for node in self.cbas_servers[-1:]:
             rest = RestConnection(node)
             rest.set_data_path(data_path=node.data_path,index_path=node.index_path,cbas_path=node.cbas_path)
@@ -637,10 +642,10 @@ class analytics_high_doc_ops(CBASBaseTest):
 
         upsert_thread = Thread(target=self.load_buckets_with_high_ops,
                                  name="high_ops_delete",
-                                 args=(self.master, GleambookUsers, num_items/10,10000,5, updates_from,4, 0))
+                                 args=(self.master, GleambookUsers, num_items/10,10000,4, updates_from,2, 0))
         delete_thread = Thread(target=self.delete_buckets_with_high_ops,
                                  name="high_ops_delete",
-                                 args=(self.master, GleambookUsers, num_items/10, self.rate_limit, 10000, 5, deletes_from,2))
+                                 args=(self.master, GleambookUsers, num_items/10, self.rate_limit, 10000, 2, deletes_from,1))
         delete_thread.start()
         upsert_thread.start()
         
@@ -668,7 +673,7 @@ class analytics_high_doc_ops(CBASBaseTest):
         self.rate_limit = self.input.param('rate_limit', '100000')
         load_thread = Thread(target=self.load_buckets_with_high_ops,
                                  name="high_ops_load",
-                                 args=(self.master, GleambookUsers, total_num_items,50,5, items_start_from,4, 0))
+                                 args=(self.master, GleambookUsers, total_num_items,50,4, items_start_from,2, 0))
         self.log.info('starting the load thread...')
         load_thread.start()
 
@@ -717,10 +722,10 @@ class analytics_high_doc_ops(CBASBaseTest):
 
         upsert_thread = Thread(target=self.load_buckets_with_high_ops,
                                  name="high_ops_delete",
-                                 args=(self.master, GleambookUsers, num_items/10,10000,5, updates_from,4, 0))
+                                 args=(self.master, GleambookUsers, num_items/10,10000,4, updates_from,2, 0))
         delete_thread = Thread(target=self.delete_buckets_with_high_ops,
                                  name="high_ops_delete",
-                                 args=(self.master, GleambookUsers, num_items/10, self.rate_limit, 10000, 5, deletes_from,2))
+                                 args=(self.master, GleambookUsers, num_items/10, self.rate_limit, 10000, 2, deletes_from,1))
         delete_thread.start()
         upsert_thread.start()
         
@@ -748,7 +753,7 @@ class analytics_high_doc_ops(CBASBaseTest):
         self.rate_limit = self.input.param('rate_limit', '100000')
         load_thread = Thread(target=self.load_buckets_with_high_ops,
                                  name="high_ops_load",
-                                 args=(self.master, GleambookUsers, total_num_items,50,5, items_start_from,4, 0))
+                                 args=(self.master, GleambookUsers, total_num_items,50,4, items_start_from,2, 0))
         self.log.info('starting the load thread...')
         load_thread.start()
 
@@ -794,10 +799,10 @@ class analytics_high_doc_ops(CBASBaseTest):
 
         upsert_thread = Thread(target=self.load_buckets_with_high_ops,
                                  name="high_ops_delete",
-                                 args=(self.master, GleambookUsers, num_items/10,10000,5, updates_from,4, 0))
+                                 args=(self.master, GleambookUsers, num_items/10,10000,4, updates_from,2, 0))
         delete_thread = Thread(target=self.delete_buckets_with_high_ops,
                                  name="high_ops_delete",
-                                 args=(self.master, GleambookUsers, num_items/10, self.rate_limit, 10000, 5, deletes_from,2))
+                                 args=(self.master, GleambookUsers, num_items/10, self.rate_limit, 10000, 2, deletes_from,1))
         delete_thread.start()
         upsert_thread.start()
         
@@ -826,7 +831,7 @@ class analytics_high_doc_ops(CBASBaseTest):
         self.rate_limit = self.input.param('rate_limit', '100000')
         load_thread = Thread(target=self.load_buckets_with_high_ops,
                                  name="high_ops_load",
-                                 args=(self.master, GleambookUsers, total_num_items,50,5, items_start_from,4, 0))
+                                 args=(self.master, GleambookUsers, total_num_items,50,4, items_start_from,2, 0))
         self.log.info('starting the load thread...')
         load_thread.start()
 
@@ -874,10 +879,10 @@ class analytics_high_doc_ops(CBASBaseTest):
 
         upsert_thread = Thread(target=self.load_buckets_with_high_ops,
                                  name="high_ops_delete",
-                                 args=(self.master, GleambookUsers, num_items/10,10000,5, updates_from,4, 0))
+                                 args=(self.master, GleambookUsers, num_items/10,10000,4, updates_from,2, 0))
         delete_thread = Thread(target=self.delete_buckets_with_high_ops,
                                  name="high_ops_delete",
-                                 args=(self.master, GleambookUsers, num_items/10, self.rate_limit, 10000, 5, deletes_from,2))
+                                 args=(self.master, GleambookUsers, num_items/10, self.rate_limit, 10000, 2, deletes_from,1))
         delete_thread.start()
         upsert_thread.start()
         

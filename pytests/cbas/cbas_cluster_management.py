@@ -698,7 +698,8 @@ class CBASServiceOperations(CBASBaseTest):
         for node in self.nodes_to_kill_service_on:
             shell = RemoteMachineShellConnection(node)
             shell.kill_process(self.process, self.service, signum=self.signum)
-
+        
+        self.sleep(5, "Sleeping for 5 seconds as after killing the service the service takes some time to exit and the service checks get pass by that time.")
         self.log.info("Wait for request to complete and cluster to be active: Using private ping() function")
         service_up = False
         start_time = time.time()
