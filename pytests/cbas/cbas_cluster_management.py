@@ -414,6 +414,15 @@ class CBASClusterManagement(CBASBaseTest):
         
         NodeHelper.reboot_server_new(self.cbas_node, self)
         
+        items_in_cbas_bucket = 0
+        start_time=time.time()
+        while (items_in_cbas_bucket == 0 or items_in_cbas_bucket == -1) and time.time()<start_time+120:
+            try:
+                items_in_cbas_bucket, _ = self.cbas_util.get_num_items_in_cbas_dataset(self.cbas_dataset_name)
+            except:
+                pass
+            self.sleep(1)
+            
         self.assertTrue(self.cbas_util.validate_cbas_dataset_items_count(self.cbas_dataset_name, self.travel_sample_docs_count),"Data loss in CBAS.")
 
     def test_restart_cb(self):
@@ -711,6 +720,7 @@ class CBASServiceOperations(CBASBaseTest):
                     break
             except:
                 pass
+            self.sleep(1)
         self.assertTrue(service_up, msg="CBAS service was not up even after 120 seconds of process kill. Failing the test possible a bug")
         
         self.log.info("Observe no reingestion on node after restart")
@@ -746,7 +756,7 @@ class CBASServiceOperations(CBASBaseTest):
         self.log.info("Run concurrent queries to simulate busy system")
         statement = "select sleep(count(*),50000) from {0} where mutated=0;".format(self.dataset_name)
         try:
-            self.cbas_util._run_concurrent_queries(statement, "async", 500, batch_size=100)
+            self.cbas_util._run_concurrent_queries(statement, "async", 10, batch_size=10)
         except Exception as e:
             if neglect_failures:
                 self.log.info("Neglecting failed queries, to handle killing Java/Cbas process kill on CC & NC node %s"%e)
@@ -758,17 +768,21 @@ class CBASServiceOperations(CBASBaseTest):
             shell = RemoteMachineShellConnection(node)
             shell.kill_process(self.process, self.service, signum=self.signum)
         
+        self.sleep(5, "Sleeping for 5 seconds as after killing the service the service takes some time to exit and the service checks get pass by that time.")
         self.log.info("Wait for request to complete and cluster to be active: Using private ping() function")
         service_up = False
         start_time = time.time()
         while time.time() < start_time + 120:
             try:
-                status, metrics, _, cbas_result, _ = self.cbas_util.execute_statement_on_cbas_util("set `import-private-functions` `true`;ping();")
+                status, metrics, _, cbas_result, _ = self.cbas_util.execute_statement_on_cbas_util("set `import-private-functions` `true`;ping();",
+                                                                                                   timeout=600, analytics_timeout=600)
                 if status == "success":
                     service_up = True
                     break
             except:
                 pass
+            self.sleep(1)
+            
         self.assertTrue(service_up, msg="CBAS service was not up even after 120 seconds of process kill. Failing the test possible a bug")
 
         self.log.info("Observe no reingestion on node after restart")
