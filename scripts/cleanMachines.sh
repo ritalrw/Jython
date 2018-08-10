@@ -1,1 +1,1 @@
-ulimit -a
+reboot

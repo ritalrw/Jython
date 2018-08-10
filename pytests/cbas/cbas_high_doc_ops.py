@@ -102,6 +102,7 @@ class analytics_high_doc_ops(CBASBaseTest):
         self.assertTrue(result['status'] == "success")
 
     def setup_cbas(self):
+        self.cbas_util = cbas_utils(self.master, self.cbas_servers[0])
         self.cbas_util.createConn("GleambookUsers")
         self.cleanup_cbas()
 
@@ -600,9 +601,6 @@ class analytics_high_doc_ops(CBASBaseTest):
          
         ###################################################### NEED TO BE UPDATED ##################################################################
         self.log.info("Step 38: When 37 is in progress do a CBAS CC SWAP Rebalance of 2 nodes.")
-        self.cbas_util.closeConn()
-        self.cbas_util = cbas_utils(self.master,self.cbas_servers[0])
-        self.cbas_util.createConn("GleambookUsers")
         
         for node in self.cbas_servers[-1:]:
             rest = RestConnection(node)

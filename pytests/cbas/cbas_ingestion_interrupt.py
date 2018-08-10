@@ -490,7 +490,7 @@ class IngestionInterrupt_CBAS(CBASBaseTest):
         CC = self.cbas_node
         NC = self.cbas_servers          
         KV = self.master
-        nodes = [CC,KV] + NC
+        nodes = [CC] + NC
         
         for node in nodes: 
             for i in xrange(2):        

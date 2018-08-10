@@ -104,7 +104,7 @@ class CBASCompilationParamsTests(CBASBaseTest):
         compiler_param_statement = "SET `compiler.groupmemory` \"50MB\"; SET `compiler.sortmemory` \"64MB\"; SET `compiler.joinmemory` \"64MB\"; SET `compiler.parallelism` \"0\";"
         join_query_statement = "select a.firstname, b.firstname from {0} a, {0} b where a.number=b.number;".format(
             self.cbas_dataset_name)
-        self.statement = compiler_param_statement + group_order_query_statement + join_query_statement
+        self.statement = compiler_param_statement + group_order_query_statement
 
         try:
             status, metrics, errors, results, handle = self.cbas_util.execute_statement_on_cbas_util(
